@@ -1,52 +1,62 @@
+# script makes four kinds of plots: parallax (G), proper motion (G) in two 
+# coordinates: RA and DEC, and also Color index - Magnitude Diagram
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 
+In_File =input("Input the name of your file")
+#In_File ='NGC2516_100m.tsv'
+mode= input("Write 'p' for parallax selection, 'a' for proper motion selection in RA, 'd' for proper motion selection in DEC")
 
-InFile =input("Input the name of your file")
-ch = input("Write 'p' for parallax plot, 'a' for proper motion plot in RA, 'd' for proper motion plot in DEC")
+def get_parameters(mode): 
+    if (mode == 'p'):
+        return 15,8,'G, mag','parallax, mas','par',0.3,0.75
+    elif (mode == 'a'):
+        return 15,10,'G, mag','pm in RA, mas/y','pminRA',3,0.3
+    elif (mode == 'd'):
+        return 15,12,'G, mag','pm in DEC, mas/y','pminDEC',3,0.3
+    else:
+        raise ValueError # what`s name of this Error?
 
-if (ch == 'p'):
-    Nx=15                   # Number in initial array for х
-    Ny=8                    # Number in initial array for  у
-    xl='G, mag'             # Name for x-axis
-    yl='parallax, mas'      # Name for y-axis
-    name='par'              # Name for plot
-    delt=0.3                # interval for parallax-selection
-    tgA=0.75                # angle of the "error`s wings"
-   
-elif (ch == 'a'):
-    Nx=15                   # Number in initial array for  х
-    Ny=10                   # Number in initial array for  у
-    xl='G, mag'             # Name for x-axis
-    yl='pm in RA, mas/y'    # Name for y-axis
-    name='pminRA_plot'      # Name for plot
-    delt=0.3                # interval for parallax-selection
-    tgA=0                   # angle of the "error`s wings"
-
-elif (ch == 'd'):
-    Nx=15                   # Number in initial array for  х
-    Ny=12                   # Number in initial array for  у
-    xl='G, mag'             # Name for x-axis
-    yl='pm in DEC, mas/y'   # Name for y-axis
-    name='pminDEC_plot'     # Name for plot
-    delt=0.3                # interval for parallax-selection
-    tgA=0                   # angle of the "error`s wings"    
+Nx, Ny, xl,yl, name, delt, tgA = get_parameters(mode)
     
-# opening result-file
-try:        
-    g=open(f"NGC2516_100m_selected_{name}_{delt}_{tgA}.txt",'w')
-except IOError:
-    print('Can not find your file')
+# reading input file  and creating data-arrays
+data = pd.read_csv(f"{In_File}", delimiter=';', header=None)
+data.rename(columns = {Nx : xl, Ny : yl}, inplace=True)
+pd.to_numeric(data[xl],errors='coerce')
+pd.to_numeric(data[yl],errors='coerce')                          
+#print (data.head())
+
+# cluster search
+data['bin'] = pd.cut(bins=np.linspace(-15, 15, 1000), x=data[yl]) #splitting interval
+
+data['weight'] = np.exp(-data[xl])
+dist = data.groupby('bin')[['weight']].sum()
+dist['average Gmag'] = dist.index.map(lambda x: x.right).astype(float)
+
+fig, ax = plt.subplots(figsize=(16, 9))
+dist.plot(x='average Gmag', y='weight', ax=ax, c='black')
+ax.grid(c='#aaaaaa', ls='--')
+plt.show()
+        
+print(dist['weight'].idxmax())
+mid_value=dist['weight'].idxmax().mid #most likely value of parallax or proper motion for Cluster
+
+#print (data[xl])
+#print (data.values[100][0])
+x=data['G, mag']
+delta_vec = pd.Series(len(x) * [np.nan])
+delta_vec[x < 18] = delt 
+delta_vec[x >= 18] = delt + (data['G, mag'] - 18) * tgA
+
+def f(x, tgA):
+    return delta_vec
     
-# reading input file  
-data = pd.read_csv(f"{InFile}", delimiter=';', header=None)
-data = data.iloc[:, [Ny, Nx]]                                   # need to read about it
-data[Nx] = data[Nx].replace('          ', np.nan).astype(float) 
-data[Ny] = data[Ny].replace('          ', np.nan).astype(float) 
+delta = f(data['G, mag'], tgA)
 
-# and select non-cluster stars                                  # write it!!!
+#selection           
+mask = (mid_value - delta < data[yl]) & (data[yl] < mid_value + delta)
+data.loc[mask].to_csv(f"NGC2516_100m_selected_{name}_{delt}_{tgA}.txt", sep=';',header= False, index=False)
 
-
-g.close()
-print ('I`ve worked so much, bring me some coffee')             # you have not deserve it yet
+print ('I`ve worked so much, bring me some coffee')  # you have not deserved it yet
 
