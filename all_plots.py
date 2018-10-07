@@ -1,13 +1,10 @@
-# script makes three kinds of star selection, depending on: parallax,
-# proper motion in two coordinates: RA and DEC. 
+# script makes four kinds of plots: parallax (G), proper motion (G) in two 
+# coordinates: RA and DEC, and also Color index - Magnitude Diagram
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-#Variables
-xlist = [] #array for x
-ylist = [] #array for y
 
-InFile =input("Input the name of your file")
+in_file =input("Input the name of your file")
 mode = input("Write 'p' for parallax plot, 'a' for proper motion plot in RA, 'd' for proper motion plot in DEC and 'c' for CMD")
 
 def get_parameters(mode): 
@@ -22,23 +19,31 @@ def get_parameters(mode):
     else:
         raise ValueError # what`s name of this Error?
 
-Nx, Ny, xl, yl, name = get_parameters(mode)
+Numx, Numy, x_name, y_name, name = get_parameters(mode)
 
-data = pd.read_csv(f"{InFile}", delimiter=';', header=None)
-data.rename(columns = {Nx : xl, Ny : yl}, inplace=True)
+data = pd.read_csv(f"{in_file}", delimiter=';', header=None)
+data.rename(columns = {Numx : x_name, Numy : y_name}, inplace=True)
 
-data[xl] = pd.to_numeric(data[xl],errors='coerce')
-data[yl] = pd.to_numeric(data[yl],errors='coerce')
+data = data.apply(pd.to_numeric, errors='coerce')
 
 # making plot
 fig, ax = plt.subplots(figsize=(16, 14)) #16:14 is szi==ize ratio 
 
-ax.scatter(data[xl], data[yl], s=8, facecolor='white', edgecolor='black') 
+ax.scatter(data[x_name], data[y_name], s=8, facecolor='white', edgecolor='black') 
 ax.grid(c='#aaaaaa', ls='--')
 if (mode != 'c'):        
     ax.set_ylim(-15, 15)      #cutting area for plot
 if (mode == 'c'): 
     ax.invert_yaxis() 
-plt.xlabel(f"{xl}")
-plt.ylabel(f"{yl}")
-plt.savefig(f"{name}.png", dpi=200)
+plt.xlabel(f"{x_name}")
+plt.ylabel(f"{y_name}")
+
+# define the name of input file
+par_name=in_file.split('_')
+len (par_name)
+if len(par_name) <= 2:
+    out_file = f"{par_name[0]}_{par_name[1].split('.tsv')[0]}_selected_{name}.png"
+else:
+    out_file = f"{in_file.split('.txt')[0]}_{name}.png"
+    
+plt.savefig(out_file, dpi=200)
