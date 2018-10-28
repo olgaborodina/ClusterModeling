@@ -9,15 +9,15 @@ mode = input("Write 'p' for parallax plot, 'a' for proper motion plot in RA, 'd'
 
 def get_parameters(mode): 
     if (mode == 'p'):
-        return 15,8,'G, mag','parallax, mas','par_plot'
+        return 15,8,'G, mag','parallax, mas','parallax_plot'
     elif (mode == 'a'):
-        return 15,10,'G, mag','pm in RA, mas/y','pminRA_plot'
+        return 15,10,'G, mag','pm in RA, mas/y','pm_inRA_plot'
     elif (mode == 'd'):
-        return 15,12,'G, mag','pm in DEC, mas/y','pminDEC_plot'
+        return 15,12,'G, mag','pm in DEC, mas/y','pm_inDEC_plot'
     elif (mode == 'c'):
         return 21,15,'BP-RP, mag','G, mag','CMD_plot'
     else:
-        raise ValueError # what`s name of this Error?
+        raise ValueError 
 
 Numx, Numy, x_name, y_name, name = get_parameters(mode)
 
@@ -27,7 +27,7 @@ data.rename(columns = {Numx : x_name, Numy : y_name}, inplace=True)
 data = data.apply(pd.to_numeric, errors='coerce')
 
 # making plot
-fig, ax = plt.subplots(figsize=(16, 14)) #16:14 is szi==ize ratio 
+fig, ax = plt.subplots(figsize=(16, 14)) #16:14 is size ratio 
 
 ax.scatter(data[x_name], data[y_name], s=8, facecolor='white', edgecolor='black') 
 ax.grid(c='#aaaaaa', ls='--')
@@ -42,7 +42,7 @@ plt.ylabel(f"{y_name}")
 par_name=in_file.split('_')
 len (par_name)
 if len(par_name) <= 2:
-    out_file = f"{par_name[0]}_{par_name[1].split('.tsv')[0]}_selected_{name}.png"
+    out_file = f"{par_name[0]}_{par_name[1].split('.tsv')[0]}_{name}.png"
 else:
     out_file = f"{in_file.split('.txt')[0]}_{name}.png"
     
