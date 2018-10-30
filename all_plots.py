@@ -24,7 +24,7 @@ Numx, Numy, x_name, y_name, name = get_parameters(mode)
 data = pd.read_csv(f"{in_file}", delimiter=';', header=None)
 data.rename(columns = {Numx : x_name, Numy : y_name}, inplace=True)
 
-data = data.apply(pd.to_numeric, errors='coerce')
+data = data.apply(pd.to_numeric, errors='coerce') 
 
 # making plot
 fig, ax = plt.subplots(figsize=(16, 14)) #16:14 is size ratio 
@@ -33,8 +33,13 @@ ax.scatter(data[x_name], data[y_name], s=8, facecolor='white', edgecolor='black'
 ax.grid(c='#aaaaaa', ls='--')
 if (mode != 'c'):        
     ax.set_ylim(-15, 15)      #cutting area for plot
-if (mode == 'c'): 
-    ax.invert_yaxis() 
+if (mode == 'c'):
+    locs, labels = plt.yticks()
+    locs, labels = plt.xticks()
+    plt.yticks(np.arange(2, 24, step=1.0))
+    ax.invert_yaxis()
+    plt.xticks(np.arange(-2, 5, step=0.5))
+
 plt.xlabel(f"{x_name}")
 plt.ylabel(f"{y_name}")
 
