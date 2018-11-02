@@ -3,7 +3,7 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.optimize import curve_fit
+#from scipy.optimize import curve_fit
 from bokeh.plotting import figure, show, ColumnDataSource, output_file
 from bokeh.models import HoverTool
 
@@ -43,7 +43,7 @@ plot_CMD(data)
 
 # changing data manually! too risky!
 data_binaries = pd.DataFrame()
-data_binaries.rename(columns = {Numx : x_name, Numy : y_name}, inplace=True)
+#data_binaries.rename(columns = {Numx : x_name, Numy : y_name}, inplace=True)
 data_singles = data
 command = 'continue'
 
@@ -54,8 +54,9 @@ while command == 'continue':
         data_saved_b = data_binaries
         data_saved_s = data_singles
         
-        data_binaries.append(data.loc[index])
-        data_singles = data.drop(index)
+        data_binaries = data_binaries.append(data_singles.loc[index])
+        data_binaries = data_binaries[data.columns]
+        data_singles = data_singles.drop(index)
         data_singles.index = pd.RangeIndex(len(data_singles.index))
         data_binaries.index = pd.RangeIndex(len(data_binaries.index))
         
@@ -65,12 +66,13 @@ while command == 'continue':
         ax.grid(c='#aaaaaa', ls='--')
         locs, labels = plt.yticks()
         locs, labels = plt.xticks()
-        plt.yticks(np.arange(2, 24, step=1.0))
+        plt.yticks(np.arange(4, 19, step=1.0))
         ax.invert_yaxis()
-        plt.xticks(np.arange(-2, 5, step=0.5))
+        plt.xticks(np.arange(-0.5, 4, step=0.5))
         plt.xlabel(f"{x_name}")
         plt.ylabel(f"{y_name}")
-        
+        plt.show()
+        plt.savefig(f"{in_file.split('.txt')[0]}_{name}_plot.png", dpi=200)
         plot_CMD(data_singles)
     if to_do == 'r':
          data_singles = data_saved_s
@@ -78,16 +80,8 @@ while command == 'continue':
     if to_do == 's':
         command = 'stop'
         
-# define the name of input file and write there
-par_name=in_file.split('_')
-len (par_name)
-if len(par_name) <= 2:
-    out_file1 = f"{par_name[0]}_{par_name[1].split('.tsv')[0]}_{name}_singles.txt"
-    out_file2 = f"{par_name[0]}_{par_name[1].split('.tsv')[0]}_{name}_binaries.txt"
-else:
-    out_file1 = f"{in_file.split('.txt')[0]}_{name}_singles.txt"
-    out_file2 = f"{in_file.split('.txt')[0]}_{name}_binaries.txt"  
-data_singles.to_csv(out_file1, sep=';', header= False, index=False)
-data_binaries.to_csv(out_file2, sep=';', header= False, index=False)
-
+# output files
+data_singles.to_csv(f"{in_file.split('.txt')[0]}_{name}_singles.txt", sep=';', header= False, index=False)
+data_binaries.to_csv(f"{in_file.split('.txt')[0]}_{name}_binaries.txt"  , sep=';', header= False, index=False)
+plt.savefig(f"{in_file.split('.txt')[0]}_{name}_plot.png", dpi=200)
 print ('I`ve worked so much, bring me some coffee')
