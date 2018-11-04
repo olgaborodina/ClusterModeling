@@ -45,7 +45,7 @@ def plot_CMD (data):
         )
     output_file('CMD.html')
     p = figure(plot_width=900, plot_height=900, tools=[hover],x_range = (-0.5, 3.5), y_range = (19, 4))
-    p.circle('x', 'y', size=3, source=source, color = "black", alpha = 0.75)
+    p.circle('x', 'y', size=5, source=source, color = "black", alpha = 0.75)
     return show(p)
 
 plot_CMD(data_singles)
@@ -54,7 +54,7 @@ plot_CMD(data_singles)
 command = 'continue'
 
 while command == 'continue':
-    to_do, index = input("1. 'b' for separation binary, 's 0' for stop, 'r' for returning previous data 2. index of star").split(' ')
+    to_do, index = input("1. 'b' for separation binary, 's 0' for stop, 'r' for returning previous data, 'a' to show again Bokeh plot 2. index of star").split(' ')
     index = int(index)
     if to_do == 'b':
         data_saved_b = data_binaries
@@ -77,13 +77,16 @@ while command == 'continue':
         plt.xticks(np.arange(-0.5, 4, step=0.5))
         plt.xlabel(f"{x_name}")
         plt.ylabel(f"{y_name}")
-        plot_CMD(data_singles)
+        #plot_CMD(data_singles)
     if to_do == 'r':
-         data_singles = data_saved_s
-         data_binaries = data_saved_b
+        data_singles = data_saved_s
+        data_binaries = data_saved_b
     if to_do == 's':
         command = 'stop'
-        
+    if to_do == 'a':
+        plot_CMD(data_singles)
+
+plot_CMD(data_singles)        
 # output files
 data_singles.to_csv(f"{f.split('.txt')[0]}_{name}_singles.txt", sep=';', header= False, index=False)
 data_binaries.to_csv(f"{f.split('.txt')[0]}_{name}_binaries.txt"  , sep=';', header= False, index=False)
