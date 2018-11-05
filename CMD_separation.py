@@ -65,19 +65,6 @@ while command == 'continue':
         data_singles = data_singles.drop(index)
         data_singles.index = pd.RangeIndex(len(data_singles.index))
         data_binaries.index = pd.RangeIndex(len(data_binaries.index))
-        
-        fig, ax = plt.subplots(figsize=(16, 14)) #16:14 is size ratio 
-        ax.scatter(data_binaries[x_name], data_binaries[y_name], s=8, c='red')
-        ax.scatter(data_singles[x_name], data_singles[y_name], s=8, facecolor='white', edgecolor='black') 
-        ax.grid(c='#aaaaaa', ls='--')
-        locs, labels = plt.yticks()
-        locs, labels = plt.xticks()
-        plt.yticks(np.arange(4, 19, step=1.0))
-        ax.invert_yaxis()
-        plt.xticks(np.arange(-0.5, 4, step=0.5))
-        plt.xlabel(f"{x_name}")
-        plt.ylabel(f"{y_name}")
-        #plot_CMD(data_singles)
     if to_do == 'r':
         data_singles = data_saved_s
         data_binaries = data_saved_b
@@ -86,10 +73,22 @@ while command == 'continue':
     if to_do == 'a':
         plot_CMD(data_singles)
 
-plot_CMD(data_singles)        
-# output files
+plot_CMD(data_singles)
+        #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# output files --- remember add this novation in GitHub!!!
+fig, ax = plt.subplots(figsize=(16, 14)) #16:14 is size ratio 
+ax.scatter(data_binaries[x_name], data_binaries[y_name], s=8, c='red')
+ax.scatter(data_singles[x_name], data_singles[y_name], s=8, facecolor='white', edgecolor='black') 
+ax.grid(c='#aaaaaa', ls='--')
+locs, labels = plt.yticks()
+locs, labels = plt.xticks()
+plt.yticks(np.arange(4, 19, step=1.0))
+ax.invert_yaxis()
+plt.xticks(np.arange(-0.5, 4, step=0.5))
+plt.xlabel(f"{x_name}")
+plt.ylabel(f"{y_name}")
+
+plt.savefig(f"{f.split('.txt')[0]}_{name}_plot.png", dpi=200)
 data_singles.to_csv(f"{f.split('.txt')[0]}_{name}_singles.txt", sep=';', header= False, index=False)
 data_binaries.to_csv(f"{f.split('.txt')[0]}_{name}_binaries.txt"  , sep=';', header= False, index=False)
-plt.savefig(f"{f.split('.txt')[0]}_{name}_plot.png", dpi=200)
-
 print ('I`ve worked so much, I deserve a chocolate bar! pleeeease!')
