@@ -66,17 +66,18 @@ plot_CMD(data)
 command = 'continue'
 
 while command == 'continue':
-    to_do, index = input("1. 'd' to delete star, 's' to stop, 'r' to return previous data 2. index of star").split(' ')
+    to_do, index = input("1. 'd' to delete star, 's 0 ' to stop,'a' for again Bokeh plot, 'r' to return previous data 2. index of star").split(' ')
     index = int(index)
     if to_do == 'd':    
         data_saved = data
         data = data.drop(index)
         data.index = pd.RangeIndex(len(data.index))
-        plot_CMD(data) 
     if to_do == 'r':
          data = data_saved          
     if to_do == 's':
         command = 'stop'
+    if to_do == 'a':
+        plot_CMD(data)
         
 # define the name of input file and write there
 par_name=in_file.split('_')
